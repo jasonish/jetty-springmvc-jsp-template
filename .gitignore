@@ -1,0 +1,8 @@
+*~
+target
+.idea
+spring-app-embedded-jetty-mvc.iml
+.classpath
+.project
+.settings
+jetty-springmvc-jsp-template.iml
