@@ -1,3 +1,28 @@
+/*
+ * The MIT License (MIT)
+ * Copyright (C) 2012 Jason Ish
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the “Software”), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 package config;
 
 import org.slf4j.Logger;
@@ -25,7 +50,8 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
  */
 @EnableWebMvc
 @Configuration
-@ComponentScan(useDefaultFilters = false, basePackages = { "ca.unx.template" }, includeFilters = { @ComponentScan.Filter(Controller.class) })
+@ComponentScan(useDefaultFilters = false, basePackages = {"ca.unx.template"},
+        includeFilters = {@ComponentScan.Filter(Controller.class)})
 @ImportResource("classpath:META-INF/spring/servlet-context.xml")
 public class MvcConfiguration extends WebMvcConfigurerAdapter {
 
@@ -54,7 +80,8 @@ public class MvcConfiguration extends WebMvcConfigurerAdapter {
      */
     @Bean
     public InternalResourceViewResolver configureInternalResourceViewResolver() {
-        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+        InternalResourceViewResolver resolver =
+                new InternalResourceViewResolver();
         resolver.setPrefix("/WEB-INF/views/");
         resolver.setSuffix(".jsp");
         return resolver;

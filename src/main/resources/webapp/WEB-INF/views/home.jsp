@@ -27,6 +27,8 @@
 	<p><a href="resources/static.txt">A static file.</a></p>
 	
 	<p><a href="metrics">Yammer Metrics</a></p>
+
+    <p><a href="admin">Admin (admin/password)</a></p>
 	
 </body>
 </html>

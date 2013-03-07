@@ -23,32 +23,19 @@
  * SOFTWARE.
  */
 
-package ca.unx.template;
+package ca.unx.template.web;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-/**
- * A dummy service for testing Spring injection.
- */
-@Service
-public class DummyService {
+@Controller
+@RequestMapping("/admin")
+public class AdminController {
 
-    private static DummyService instance = null;
-
-    public DummyService() {
-        /*
-         * This is here just to make sure we don't get instantiated 2x while
-         * playing with Spring application contexts.
-         */
-        if (instance != null) {
-            throw new RuntimeException(
-                    "DummyServer has already been instantiated.");
-        }
-        instance = this;
-    }
-
-    public String getMessage() {
-        return "I am a dummy service.";
+    @RequestMapping("")
+    public @ResponseBody String index() {
+        return "This is the admin section.";
     }
 
 }
