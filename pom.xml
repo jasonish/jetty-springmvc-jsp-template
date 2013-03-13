@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.unx</groupId>
@@ -156,9 +157,13 @@
               <goal>jspc</goal>
             </goals>
             <configuration>
-              <webAppSourceDirectory>${basedir}/src/main/resources/webapp</webAppSourceDirectory>
-              <webXml>${basedir}/src/main/resources/webapp/WEB-INF/web.xml</webXml>
-              <webXmlFragment>${basedir}/target/classes/webapp/WEB-INF/web.xml-frag</webXmlFragment>
+              <webAppSourceDirectory>${basedir}/src/main/resources/webapp
+              </webAppSourceDirectory>
+              <webXml>${basedir}/src/main/resources/webapp/WEB-INF/web.xml
+              </webXml>
+              <webXmlFragment>
+                ${basedir}/target/classes/webapp/WEB-INF/web.xml-frag
+              </webXmlFragment>
             </configuration>
           </execution>
         </executions>
@@ -208,19 +213,19 @@
             <configuration>
               <transformers>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>ca.unx.template.Main</mainClass>
                 </transformer>
 
                 <!-- Files that need to be merged. -->
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/spring.handlers</resource>
                 </transformer>
                 <transformer
-                  implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                    implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                   <resource>META-INF/spring.schemas</resource>
                 </transformer>
               </transformers>

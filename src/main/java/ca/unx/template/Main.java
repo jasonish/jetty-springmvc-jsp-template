@@ -25,14 +25,13 @@
 
 package ca.unx.template;
 
+import config.RootConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.web.context.WebApplicationContext;
-
-import config.RootConfiguration;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 /**
@@ -73,8 +72,9 @@ public class Main {
                                 @Override
                                 public void onApplicationEvent(
                                         ContextRefreshedEvent event) {
-                                    if (event
-                                            .getApplicationContext() instanceof AnnotationConfigWebApplicationContext) {
+                                    ApplicationContext ctx =
+                                            event.getApplicationContext();
+                                    if (ctx instanceof AnnotationConfigWebApplicationContext) {
                                         webApplicationContextInitialized = true;
                                     }
                                 }
