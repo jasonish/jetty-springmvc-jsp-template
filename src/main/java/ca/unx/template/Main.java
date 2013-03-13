@@ -33,6 +33,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.WebApplicationContext;
 
 import config.RootConfiguration;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 /**
  * Application entry point.
@@ -73,7 +74,7 @@ public class Main {
                                 public void onApplicationEvent(
                                         ContextRefreshedEvent event) {
                                     if (event
-                                            .getApplicationContext() instanceof WebApplicationContext) {
+                                            .getApplicationContext() instanceof AnnotationConfigWebApplicationContext) {
                                         webApplicationContextInitialized = true;
                                     }
                                 }
@@ -90,7 +91,8 @@ public class Main {
             }
 
             logger.info("Running.");
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             logger.error("Error starting application", e);
             System.exit(1);
         }
