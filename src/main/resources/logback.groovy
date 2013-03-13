@@ -6,10 +6,9 @@
  * logback.xml in its place.
  */
 
-import java.util.logging.Logger;
 
-import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.core.ConsoleAppender
 
 import static ch.qos.logback.classic.Level.*
 

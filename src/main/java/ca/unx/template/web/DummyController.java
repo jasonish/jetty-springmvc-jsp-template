@@ -25,10 +25,7 @@
 
 package ca.unx.template.web;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.Locale;
-
+import ca.unx.template.DummyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +34,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import ca.unx.template.DummyService;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Handles requests for the application home page.
