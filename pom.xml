@@ -16,7 +16,7 @@
     <slf4j.version>1.7.2</slf4j.version>
     <logback.version>1.0.9</logback.version>
     <yammer.metrics.version>2.2.0</yammer.metrics.version>
-    <jetty.version>8.1.8.v20121106</jetty.version>
+    <jetty.version>9.0.0.v20130308</jetty.version>
   </properties>
 
   <dependencies>
@@ -145,7 +145,7 @@
         shade the jar so the taglibs can be found when the JSPs are compiled at run 
         time. -->
       <plugin>
-        <groupId>org.mortbay.jetty</groupId>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-jspc-maven-plugin</artifactId>
         <version>${jetty.version}</version>
         <executions>

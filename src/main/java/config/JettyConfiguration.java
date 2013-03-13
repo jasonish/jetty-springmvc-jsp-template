@@ -28,7 +28,7 @@ package config;
 import com.yammer.metrics.reporting.AdminServlet;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.component.AbstractLifeCycle;
@@ -128,34 +128,27 @@ public class JettyConfiguration implements ApplicationContextAware {
     }
 
     /**
-     * Create your Jetty connectors here. This version creates the most basic
-     * SelectChannelConnector.
-     *
-     * This method returns an array of connectors. This allows you to listen
-     * with https on one port and plain http on another.
-     */
-    @Bean
-    public Connector[] jettyConnectors() {
-        SelectChannelConnector connector0 = new SelectChannelConnector();
-        connector0.setPort(8080);
-
-        return new Connector[]{connector0};
-    }
-
-    /**
      * Jetty Server bean.
      *
      * Instantiate the Jetty server.
      */
     @Bean(initMethod = "start", destroyMethod = "stop")
     public Server jettyServer() throws IOException {
+
+        /* Create the server. */
         Server server = new Server();
+
+        /* Create a basic connector. */
+        ServerConnector httpConnector = new ServerConnector(server);
+        httpConnector.setPort(8080);
+        server.addConnector(httpConnector);
+
         server.setHandler(jettyWebAppContext());
 
         /* Add a life cycle listener so we can register the SpringMVC dispatcher
          * servlet after the web application context has been started. */
         server.addLifeCycleListener(lifeCycleStartedListener());
-        server.setConnectors(jettyConnectors());
+
         return server;
     }
 
