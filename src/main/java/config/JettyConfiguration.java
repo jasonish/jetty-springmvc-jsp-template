@@ -25,14 +25,19 @@
 
 package config;
 
+import com.yammer.metrics.reporting.AdminServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import java.io.IOException;
 
@@ -51,14 +56,25 @@ public class JettyConfiguration {
         WebAppContext ctx = new WebAppContext();
         ctx.setContextPath("/");
         ctx.setWar(new ClassPathResource("webapp").getURI().toString());
-        ctx.addEventListener(new WebInitializer(applicationContext));
+
+        /* Create the root web application context and set it as a servlet
+         * attribute so the dispatcher servlet can find it. */
+        GenericWebApplicationContext webApplicationContext =
+                new GenericWebApplicationContext();
+        webApplicationContext.setParent(applicationContext);
+        webApplicationContext.refresh();
+        ctx.setAttribute(
+                WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
+                webApplicationContext);
+
+        ctx.addEventListener(new WebAppInitializer());
 
         return ctx;
     }
 
     /**
      * Jetty Server bean.
-     *
+     * <p/>
      * Instantiate the Jetty server.
      */
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -73,6 +89,11 @@ public class JettyConfiguration {
         server.addConnector(httpConnector);
 
         server.setHandler(jettyWebAppContext());
+
+        /* We can add servlets or here, or we could do it in the
+         * WebAppInitializer. */
+        jettyWebAppContext().addServlet(new ServletHolder(new AdminServlet()),
+                "/metrics/*");
 
         return server;
     }

@@ -33,10 +33,11 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 /**
  * Application entry point.
- *
+ * <p/>
  * This class implements and bootstraps the Spring application context. It also
  * listens for application events to ensure the SpringMVC application context is
  * successfully loaded.
@@ -64,7 +65,7 @@ public class Main {
              * 
              * To detect the case where the SpringMVC's web application context
              * fails we'll listen for ContextRefreshEvents and set a flag when
-             * we see one.
+             * we see the web application context refresh.
              */
             applicationContext
                     .addApplicationListener(
@@ -74,7 +75,7 @@ public class Main {
                                         ContextRefreshedEvent event) {
                                     ApplicationContext ctx =
                                             event.getApplicationContext();
-                                    if (ctx instanceof AnnotationConfigWebApplicationContext) {
+                                    if (ctx instanceof GenericWebApplicationContext) {
                                         webApplicationContextInitialized = true;
                                     }
                                 }
@@ -85,14 +86,12 @@ public class Main {
             applicationContext.refresh();
 
             if (!webApplicationContextInitialized) {
-                logger.error(
-                        "Web application context not initialized. Exiting.");
+                logger.error("Failed to initialize web application.  Exiting.");
                 System.exit(1);
             }
 
             logger.info("Running.");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Error starting application", e);
             System.exit(1);
         }

@@ -1,0 +1,111 @@
+/*
+ * The MIT License (MIT)
+ * Copyright (C) 2012 Jason Ish
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the “Software”), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package config;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.web.filter.DelegatingFilterProxy;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+
+public class WebAppInitializer extends
+        AbstractAnnotationConfigDispatcherServletInitializer implements
+        ServletContextListener {
+
+    final Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * See {@link AbstractAnnotationConfigDispatcherServletInitializer}.
+     */
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return null;
+    }
+
+    /**
+     * Set the application context for the Spring MVC web tier.
+     *
+     * @See {@link AbstractAnnotationConfigDispatcherServletInitializer}
+     */
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class<?>[]{MvcConfiguration.class};
+    }
+
+    /**
+     * Map the Spring MVC servlet as the root.
+     *
+     * @See {@link AbstractAnnotationConfigDispatcherServletInitializer}
+     */
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+
+    @Override
+    public void onStartup(
+            ServletContext servletContext) throws ServletException {
+
+        /* Let super do its thing... */
+        super.onStartup(servletContext);
+
+        /* Add the Spring Security filter. */
+        servletContext.addFilter("springSecurityFilterChain",
+                new DelegatingFilterProxy()).addMappingForUrlPatterns(null,
+                false, "/*");
+
+        /* We could add more servlets here such as the metrics servlet which is
+         * added in @{link config.JettyConfiguration}. */
+    }
+
+    @Override
+    public void contextInitialized(ServletContextEvent servletContextEvent) {
+        try {
+            onStartup(servletContextEvent.getServletContext());
+        } catch (ServletException e) {
+            logger.error("Failed to initialize web application", e);
+            System.exit(0);
+        }
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    }
+
+    /**
+     * Overrided to squelch a meaningless log message when embedded.
+     */
+    @Override
+    protected void registerContextLoaderListener(ServletContext servletContext) {
+    }
+}
