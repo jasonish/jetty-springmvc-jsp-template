@@ -25,8 +25,7 @@
 
 package ca.unx.template.web;
 
-import ca.unx.template.DummyService;
-import com.yammer.metrics.core.HealthCheckRegistry;
+import ca.unx.template.EchoService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,19 +42,19 @@ import java.util.Locale;
  * Handles requests for the application home page.
  */
 @Controller
-public class DummyController {
+public class HomeController {
 
     private static final Logger logger = LoggerFactory
-            .getLogger(DummyController.class);
+            .getLogger(HomeController.class);
 
-    /*
-     * Autowire in the dummy service from the root application context.
-     */
     @Autowired
-    private DummyService dummyService = null;
+    private EchoService echoService = null;
 
     /**
      * Simple controller for "/" that returns a JSP view.
+     *
+     * If we didn't map this to /, the DefaultServlet would take over and
+     * attempt to serve an index.html file from the webapp directory.
      */
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String home(Locale locale, Model model) {
@@ -67,10 +66,8 @@ public class DummyController {
                         DateFormat.LONG, locale);
 
         String formattedDate = dateFormat.format(date);
-
         model.addAttribute("serverTime", formattedDate);
-
-        model.addAttribute("dummyService", dummyService);
+        model.addAttribute("echoService", echoService);
 
         /*
          * When using embedded Jetty there can be issues with JSP tag libraries.

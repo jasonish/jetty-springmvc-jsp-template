@@ -25,30 +25,39 @@
 
 package ca.unx.template;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
  * A dummy service for testing Spring injection.
  */
 @Service
-public class DummyService {
+public class EchoService {
 
-    private static DummyService instance = null;
+    final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public DummyService() {
-        /*
-         * This is here just to make sure we don't get instantiated 2x while
-         * playing with Spring application contexts.
+    private static EchoService instance = null;
+
+    public EchoService() {
+        /**
+         * This is here to detect if we get instantiated 2x.  While starting
+         * with SpringMVC with Jetty embedded I found that I could get into
+         * a case where the web application would recreate all the beans
+         * already created outside of the web app context.  The component
+         * scan filters should prevent this.
          */
         if (instance != null) {
             throw new RuntimeException(
                     "DummyServer has already been instantiated.");
         }
         instance = this;
+
+        logger.info("EchoService initialized.");
     }
 
-    public String getMessage() {
-        return "I am a dummy service.";
+    public String echo(String msg) {
+        return new String(msg);
     }
 
 }

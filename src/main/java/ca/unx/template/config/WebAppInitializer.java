@@ -23,13 +23,10 @@
  * SOFTWARE.
  */
 
-package config;
+package ca.unx.template.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -85,7 +82,7 @@ public class WebAppInitializer extends
                 false, "/*");
 
         /* We could add more servlets here such as the metrics servlet which is
-         * added in @{link config.JettyConfiguration}. */
+         * added in @{link ca.unx.template.config.JettyConfiguration}. */
     }
 
     @Override

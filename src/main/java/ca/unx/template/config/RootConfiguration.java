@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package config;
+package ca.unx.template.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -34,18 +34,18 @@ import org.springframework.stereotype.Controller;
 /**
  * The root application context.
  *
- * Beans can also be configured by XML in root-context.xml which is imported by
- * this context class.
+ * Scanning is enabled but will skip @Configuration and @Controller classes.
  *
- * Component scanning is also done to pickup any components other than
- *
- * @Controllers. @Controllers will be picked up by the SpringMVC context.
+ * @Configuration classes are skipped to prevent picking theses ones up again
+ * as these files are in the scan path.  @Controller classes will be picked
+ * up by MvcConfiguration.
  */
 @Configuration
 @ImportResource({"classpath:META-INF/spring/root-context.xml",
         "classpath:META-INF/spring/security.xml"})
-@Import({config.JettyConfiguration.class})
+@Import({JettyConfiguration.class})
 @ComponentScan(basePackages = {"ca.unx.template"},
-        excludeFilters = {@ComponentScan.Filter(Controller.class)})
+        excludeFilters = {@ComponentScan.Filter(Controller.class),
+                @ComponentScan.Filter(Configuration.class)})
 public class RootConfiguration {
 }

@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-package config;
+package ca.unx.template.config;
 
 import com.yammer.metrics.reporting.AdminServlet;
 import org.eclipse.jetty.server.Server;
@@ -35,7 +35,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
@@ -56,6 +55,10 @@ public class JettyConfiguration {
         WebAppContext ctx = new WebAppContext();
         ctx.setContextPath("/");
         ctx.setWar(new ClassPathResource("webapp").getURI().toString());
+
+        /* Disable directory listings if no index.html is found. */
+        ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed",
+                "false");
 
         /* Create the root web application context and set it as a servlet
          * attribute so the dispatcher servlet can find it. */
