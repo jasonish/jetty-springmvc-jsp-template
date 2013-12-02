@@ -16,7 +16,7 @@
     <springsecurity.version>3.1.4.RELEASE</springsecurity.version>
     <slf4j.version>1.7.5</slf4j.version>
     <logback.version>1.0.13</logback.version>
-    <yammer.metrics.version>2.2.0</yammer.metrics.version>
+    <codahale.metrics.version>3.0.1</codahale.metrics.version>
     <jetty.version>9.1.0.v20131115</jetty.version>
     <junit.version>4.11</junit.version>
   </properties>
@@ -124,16 +124,16 @@
       <version>${jetty.version}</version>
     </dependency>
 
-    <!-- Yammer (Coda Hale) Metrics -->
+    <!-- Coda Hale's metrics. -->
     <dependency>
-      <groupId>com.yammer.metrics</groupId>
+      <groupId>com.codahale.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-      <version>${yammer.metrics.version}</version>
+      <version>${codahale.metrics.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.yammer.metrics</groupId>
-      <artifactId>metrics-servlet</artifactId>
-      <version>${yammer.metrics.version}</version>
+      <groupId>com.codahale.metrics</groupId>
+      <artifactId>metrics-servlets</artifactId>
+      <version>${codahale.metrics.version}</version>
     </dependency>
 
   </dependencies>

@@ -25,15 +25,18 @@
 
 package ca.unx.template.config;
 
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.servlets.AdminServlet;
+import com.codahale.metrics.servlets.HealthCheckServlet;
+import com.codahale.metrics.servlets.MetricsServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 
 public class WebAppInitializer extends
         AbstractAnnotationConfigDispatcherServletInitializer implements
@@ -81,8 +84,10 @@ public class WebAppInitializer extends
                 new DelegatingFilterProxy()).addMappingForUrlPatterns(null,
                 false, "/*");
 
-        /* We could add more servlets here such as the metrics servlet which is
-         * added in @{link ca.unx.template.config.JettyConfiguration}. */
+        // Add metrics servlet.
+        ServletRegistration.Dynamic metricsServlet = servletContext.addServlet(
+                "metrics", AdminServlet.class);
+        metricsServlet.addMapping("/metrics/*");
     }
 
     @Override

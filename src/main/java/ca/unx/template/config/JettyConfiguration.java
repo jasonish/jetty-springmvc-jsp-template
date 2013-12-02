@@ -25,7 +25,10 @@
 
 package ca.unx.template.config;
 
-import com.yammer.metrics.reporting.AdminServlet;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.servlets.HealthCheckServlet;
+import com.codahale.metrics.servlets.MetricsServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -49,6 +52,12 @@ public class JettyConfiguration {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private MetricRegistry metricRegistry;
+
+    @Autowired
+    private HealthCheckRegistry healthCheckRegistry;
+
     @Bean
     public WebAppContext jettyWebAppContext() throws IOException {
 
@@ -69,6 +78,15 @@ public class JettyConfiguration {
         ctx.setAttribute(
                 WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
                 webApplicationContext);
+
+        /*
+         * Set the attributes that the Metrics servlets require.  The Metrics
+         * servlet is added in the WebAppInitializer.
+         */
+        ctx.setAttribute(MetricsServlet.METRICS_REGISTRY,
+                metricRegistry);
+        ctx.setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY,
+                healthCheckRegistry);
 
         ctx.addEventListener(new WebAppInitializer());
 
@@ -92,11 +110,6 @@ public class JettyConfiguration {
         server.addConnector(httpConnector);
 
         server.setHandler(jettyWebAppContext());
-
-        /* We can add servlets or here, or we could do it in the
-         * WebAppInitializer. */
-        jettyWebAppContext().addServlet(new ServletHolder(new AdminServlet()),
-                "/metrics/*");
 
         return server;
     }
