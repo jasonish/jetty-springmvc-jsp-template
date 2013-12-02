@@ -12,12 +12,12 @@
 
   <properties>
     <java.version>1.7</java.version>
-    <springframework.version>3.2.4.RELEASE</springframework.version>
+    <springframework.version>3.2.5.RELEASE</springframework.version>
     <springsecurity.version>3.1.4.RELEASE</springsecurity.version>
     <slf4j.version>1.7.5</slf4j.version>
     <logback.version>1.0.13</logback.version>
     <yammer.metrics.version>2.2.0</yammer.metrics.version>
-    <jetty.version>9.0.6.v20130930</jetty.version>
+    <jetty.version>9.1.0.v20131115</jetty.version>
     <junit.version>4.11</junit.version>
   </properties>
 
@@ -97,8 +97,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <version>3.0.1</version>
-      <scope>provided</scope>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
