@@ -34,6 +34,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -57,6 +58,9 @@ public class JettyConfiguration {
 
     @Autowired
     private HealthCheckRegistry healthCheckRegistry;
+
+    @Value("${jetty.port:8080}")
+    private int jettyPort;
 
     @Bean
     public WebAppContext jettyWebAppContext() throws IOException {
@@ -106,7 +110,7 @@ public class JettyConfiguration {
 
         /* Create a basic connector. */
         ServerConnector httpConnector = new ServerConnector(server);
-        httpConnector.setPort(8080);
+        httpConnector.setPort(jettyPort);
         server.addConnector(httpConnector);
 
         server.setHandler(jettyWebAppContext());

@@ -36,3 +36,8 @@ dependencies, use the 'fatjar' profile.
     java -jar target/jetty-springmvc-jsp-template-0.0.1-SNAPSHOT.jar
 
 Then point your browser at http://localhost:8080.
+
+## Other Notes
+
+- To change the port that jetty will start on, set the jetty.port property
+  to the desired port.

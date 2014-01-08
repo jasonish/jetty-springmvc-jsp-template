@@ -28,16 +28,17 @@ package ca.unx.template.config;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
 import org.springframework.context.annotation.*;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Controller;
 
 /**
  * The root application context.
- *
+ * <p/>
  * Scanning is enabled but will skip @Configuration and @Controller classes.
  *
- * @Configuration classes are skipped to prevent picking theses ones up again
- * as these files are in the scan path.  @Controller classes will be picked
- * up by MvcConfiguration.
+ * @Configuration classes are skipped to prevent picking theses ones up again as
+ * these files are in the scan path.  @Controller classes will be picked up by
+ * MvcConfiguration.
  */
 @Configuration
 @ImportResource({"classpath:META-INF/spring/root-context.xml",
@@ -47,6 +48,14 @@ import org.springframework.stereotype.Controller;
         excludeFilters = {@ComponentScan.Filter(Controller.class),
                 @ComponentScan.Filter(Configuration.class)})
 public class RootConfiguration {
+
+    /**
+     * Allows access to properties. eg) @Value("${jetty.port}").
+     */
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
 
     /**
      * A default Metrics registry.
