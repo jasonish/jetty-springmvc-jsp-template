@@ -27,7 +27,10 @@ package ca.unx.template.config;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.health.HealthCheckRegistry;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.stereotype.Controller;
 
@@ -41,9 +44,7 @@ import org.springframework.stereotype.Controller;
  * MvcConfiguration.
  */
 @Configuration
-@ImportResource({"classpath:META-INF/spring/root-context.xml",
-        "classpath:META-INF/spring/security.xml"})
-@Import({JettyConfiguration.class})
+@Import({JettyConfiguration.class, SpringSecurityConfiguration.class})
 @ComponentScan(basePackages = {"ca.unx.template"},
         excludeFilters = {@ComponentScan.Filter(Controller.class),
                 @ComponentScan.Filter(Configuration.class)})

@@ -48,7 +48,6 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @Configuration
 @ComponentScan(useDefaultFilters = false, basePackages = {"ca.unx.template"},
         includeFilters = {@ComponentScan.Filter(Controller.class)})
-@ImportResource("classpath:META-INF/spring/servlet-context.xml")
 public class MvcConfiguration extends WebMvcConfigurerAdapter {
 
     final Logger logger = LoggerFactory.getLogger(getClass());
