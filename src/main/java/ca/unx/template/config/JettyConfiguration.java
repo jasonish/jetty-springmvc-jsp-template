@@ -29,10 +29,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import org.apache.jasper.servlet.JspServlet;
+import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.SimpleInstanceManager;
 import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
 import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
 import org.eclipse.jetty.plus.annotation.ContainerInitializer;
@@ -103,6 +104,13 @@ public class JettyConfiguration {
 		return ctx;
 	}
 
+	/**
+	 * Configure a JSP compiling servlet
+	 * 
+	 * See https://github.com/jetty-project/embedded-jetty-jsp/blob/master/src/main/java/org/eclipse/jetty/demo/Main.java#L134
+	 * 
+	 * @param context
+	 */
 	private void configureJspSupport(WebAppContext context) {
 		File tempDir = new File(System.getProperty("java.io.tmpdir"));
 		File scratchDir = new File(tempDir.toString(), "embedded-jetty-jsp");
@@ -113,27 +121,21 @@ public class JettyConfiguration {
 			}
 		}
 		context.setAttribute("javax.servlet.context.tempdir", scratchDir);
-//		System.setProperty("org.apache.jasper.compiler.disablejsr199", "false");
-		// context.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
+		context.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
 
 		// Ensure the jsp engine is initialized correctly
-		JettyJasperInitializer sci = new JettyJasperInitializer();
-		ServletContainerInitializersStarter sciStarter = new ServletContainerInitializersStarter(context);
-		ContainerInitializer initializer = new ContainerInitializer(sci, null);
-		List<ContainerInitializer> initializers = new ArrayList<ContainerInitializer>();
-		initializers.add(initializer);
-
-		context.setAttribute("org.eclipse.jetty.containerInitializers", initializers);
-		context.addBean(sciStarter, true);
+		ContainerInitializer initializer = new ContainerInitializer(new JettyJasperInitializer(), null);
+		context.setAttribute("org.eclipse.jetty.containerInitializers", Arrays.asList(initializer));
+		context.addBean(new ServletContainerInitializersStarter(context), true);
 
 		// Set Classloader of Context to be sane (needed for JSTL)
-		// JSP requires a non-System classloader, this simply wraps the
-		// embedded System classloader in a way that makes it suitable
-		// for JSP to use
+		// JSP requires a non-System classloader, this simply wraps the embedded
+		// System classloader in a way that makes it suitable for JSP to use
 		ClassLoader jspClassLoader = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
 		context.setClassLoader(jspClassLoader);
 
 		// Add JSP Servlet (must be named "jsp")
+		// Configuration options: http://www.eclipse.org/jetty/documentation/current/configuring-jsp.html#compiling-jsps
 		ServletHolder holderJsp = new ServletHolder("jsp", JspServlet.class);
 		holderJsp.setInitOrder(0);
 		holderJsp.setInitParameter("logVerbosityLevel", "DEBUG");
@@ -143,7 +145,6 @@ public class JettyConfiguration {
 		holderJsp.setInitParameter("compilerSourceVM", "1.7");
 		holderJsp.setInitParameter("keepgenerated", "true");
 		context.addServlet(holderJsp, "*.jsp");
-
 	}
 
 	/**
