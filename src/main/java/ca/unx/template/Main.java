@@ -26,6 +26,7 @@
 package ca.unx.template;
 
 import ca.unx.template.config.RootConfiguration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -54,7 +55,8 @@ public class Main {
         final Logger logger = LoggerFactory.getLogger("main");
 
         try {
-            AnnotationConfigApplicationContext applicationContext =
+            @SuppressWarnings("resource")
+			AnnotationConfigApplicationContext applicationContext =
                     new AnnotationConfigApplicationContext();
 
             /*
