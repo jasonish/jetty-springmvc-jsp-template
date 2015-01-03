@@ -28,6 +28,8 @@ logger("org.eclipse.jetty.webapp.WebAppClassLoader", INFO)
 logger("org.eclipse.jetty.util.resource.JarResource", INFO)
 
 /* Quieten Jetty in general. */
+logger("org.apache.tomcat", INFO)
+logger("org.apache.jasper", INFO)
 logger("org.eclipse", ERROR);
 
 def appenders = []

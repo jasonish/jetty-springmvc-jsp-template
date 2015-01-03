@@ -25,10 +25,18 @@
 
 package ca.unx.template.config;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.health.HealthCheckRegistry;
-import com.codahale.metrics.servlets.HealthCheckServlet;
-import com.codahale.metrics.servlets.MetricsServlet;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Arrays;
+
+import org.apache.jasper.servlet.JspServlet;
+import org.apache.tomcat.InstanceManager;
+import org.apache.tomcat.SimpleInstanceManager;
+import org.eclipse.jetty.annotations.ServletContainerInitializersStarter;
+import org.eclipse.jetty.apache.jsp.JettyJasperInitializer;
+import org.eclipse.jetty.plus.annotation.ContainerInitializer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -42,7 +50,10 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.GenericWebApplicationContext;
 
-import java.io.IOException;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.health.HealthCheckRegistry;
+import com.codahale.metrics.servlets.HealthCheckServlet;
+import com.codahale.metrics.servlets.MetricsServlet;
 
 /**
  * Configure the embedded Jetty server and the SpringMVC dispatcher servlet.
@@ -50,72 +61,111 @@ import java.io.IOException;
 @Configuration
 public class JettyConfiguration {
 
-    @Autowired
-    private ApplicationContext applicationContext;
+	@Autowired
+	private ApplicationContext applicationContext;
 
-    @Autowired
-    private MetricRegistry metricRegistry;
+	@Autowired
+	private MetricRegistry metricRegistry;
 
-    @Autowired
-    private HealthCheckRegistry healthCheckRegistry;
+	@Autowired
+	private HealthCheckRegistry healthCheckRegistry;
 
-    @Value("${jetty.port:8080}")
-    private int jettyPort;
+	@Value("${jetty.port:8080}")
+	private int jettyPort;
 
-    @Bean
-    public WebAppContext jettyWebAppContext() throws IOException {
+	@Bean
+	public WebAppContext jettyWebAppContext() throws IOException {
 
-        WebAppContext ctx = new WebAppContext();
-        ctx.setContextPath("/");
-        ctx.setWar(new ClassPathResource("webapp").getURI().toString());
+		WebAppContext ctx = new WebAppContext();
+		ctx.setContextPath("/");
+		ctx.setWar(new ClassPathResource("webapp").getURI().toString());
 
-        /* Disable directory listings if no index.html is found. */
-        ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed",
-                "false");
+		/* Disable directory listings if no index.html is found. */
+		ctx.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 
-        /* Create the root web application context and set it as a servlet
-         * attribute so the dispatcher servlet can find it. */
-        GenericWebApplicationContext webApplicationContext =
-                new GenericWebApplicationContext();
-        webApplicationContext.setParent(applicationContext);
-        webApplicationContext.refresh();
-        ctx.setAttribute(
-                WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
-                webApplicationContext);
+		configureJspSupport(ctx);
 
-        /*
-         * Set the attributes that the Metrics servlets require.  The Metrics
-         * servlet is added in the WebAppInitializer.
-         */
-        ctx.setAttribute(MetricsServlet.METRICS_REGISTRY,
-                metricRegistry);
-        ctx.setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY,
-                healthCheckRegistry);
+		/*
+		 * Create the root web application context and set it as a servlet attribute so the dispatcher servlet can find it.
+		 */
+		GenericWebApplicationContext webApplicationContext = new GenericWebApplicationContext();
+		webApplicationContext.setParent(applicationContext);
+		webApplicationContext.refresh();
+		ctx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, webApplicationContext);
 
-        ctx.addEventListener(new WebAppInitializer());
+		/*
+		 * Set the attributes that the Metrics servlets require. The Metrics servlet is added in the WebAppInitializer.
+		 */
+		ctx.setAttribute(MetricsServlet.METRICS_REGISTRY, metricRegistry);
+		ctx.setAttribute(HealthCheckServlet.HEALTH_CHECK_REGISTRY, healthCheckRegistry);
 
-        return ctx;
-    }
+		ctx.addEventListener(new WebAppInitializer());
 
-    /**
-     * Jetty Server bean.
-     * <p/>
-     * Instantiate the Jetty server.
-     */
-    @Bean(initMethod = "start", destroyMethod = "stop")
-    public Server jettyServer() throws IOException {
+		return ctx;
+	}
 
-        /* Create the server. */
-        Server server = new Server();
+	/**
+	 * Configure a JSP compiling servlet
+	 * 
+	 * See https://github.com/jetty-project/embedded-jetty-jsp/blob/master/src/main/java/org/eclipse/jetty/demo/Main.java#L134
+	 * 
+	 * @param context
+	 */
+	private void configureJspSupport(WebAppContext context) {
+		File tempDir = new File(System.getProperty("java.io.tmpdir"));
+		File scratchDir = new File(tempDir.toString(), "embedded-jetty-jsp");
 
-        /* Create a basic connector. */
-        ServerConnector httpConnector = new ServerConnector(server);
-        httpConnector.setPort(jettyPort);
-        server.addConnector(httpConnector);
+		if (!scratchDir.exists()) {
+			if (!scratchDir.mkdirs()) {
+				throw new RuntimeException("Unable to create scratch directory: " + scratchDir);
+			}
+		}
+		context.setAttribute("javax.servlet.context.tempdir", scratchDir);
+		context.setAttribute(InstanceManager.class.getName(), new SimpleInstanceManager());
 
-        server.setHandler(jettyWebAppContext());
+		// Ensure the jsp engine is initialized correctly
+		ContainerInitializer initializer = new ContainerInitializer(new JettyJasperInitializer(), null);
+		context.setAttribute("org.eclipse.jetty.containerInitializers", Arrays.asList(initializer));
+		context.addBean(new ServletContainerInitializersStarter(context), true);
 
-        return server;
-    }
+		// Set Classloader of Context to be sane (needed for JSTL)
+		// JSP requires a non-System classloader, this simply wraps the embedded
+		// System classloader in a way that makes it suitable for JSP to use
+		ClassLoader jspClassLoader = new URLClassLoader(new URL[0], this.getClass().getClassLoader());
+		context.setClassLoader(jspClassLoader);
+
+		// Add JSP Servlet (must be named "jsp")
+		// Configuration options: http://www.eclipse.org/jetty/documentation/current/configuring-jsp.html#compiling-jsps
+		ServletHolder holderJsp = new ServletHolder("jsp", JspServlet.class);
+		holderJsp.setInitOrder(0);
+		holderJsp.setInitParameter("logVerbosityLevel", "DEBUG");
+		holderJsp.setInitParameter("fork", "false");
+		holderJsp.setInitParameter("xpoweredBy", "false");
+		holderJsp.setInitParameter("compilerTargetVM", "1.7");
+		holderJsp.setInitParameter("compilerSourceVM", "1.7");
+		holderJsp.setInitParameter("keepgenerated", "true");
+		context.addServlet(holderJsp, "*.jsp");
+	}
+
+	/**
+	 * Jetty Server bean.
+	 * <p/>
+	 * Instantiate the Jetty server.
+	 */
+	@Bean(initMethod = "start", destroyMethod = "stop")
+	public Server jettyServer() throws IOException {
+
+		/* Create the server. */
+		Server server = new Server();
+
+		/* Create a basic connector. */
+		ServerConnector httpConnector = new ServerConnector(server);
+		httpConnector.setPort(jettyPort);
+		server.addConnector(httpConnector);
+
+		server.setHandler(jettyWebAppContext());
+
+		return server;
+	}
 
 }
